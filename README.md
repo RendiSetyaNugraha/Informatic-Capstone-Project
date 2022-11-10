@@ -1,2 +1,2 @@
 # Informatic-Capstone-Project
-Berisi laporan ICP saya, dan materi perkuliaha matkul ICP serta program saya
+Berisi laporan ICP saya, dan materi perkuliahan matkul ICP serta program saya
