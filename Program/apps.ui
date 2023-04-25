@@ -168,41 +168,41 @@ background-color: rgb(0, 170, 0);</string>
        <string>Preprocessing</string>
       </property>
      </widget>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>256</y>
-       <width>131</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Total Data latih</string>
-     </property>
-     <widget class="QLineEdit" name="editTotalDataLatih">
+     <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>113</width>
-        <height>31</height>
+        <x>0</x>
+        <y>180</y>
+        <width>131</width>
+        <height>61</height>
        </rect>
       </property>
-      <property name="text">
-       <string>0</string>
+      <property name="title">
+       <string>Total Data latih</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
+      <widget class="QLineEdit" name="editTotalDataLatih">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>113</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox_5">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>360</y>
+       <y>299</y>
        <width>131</width>
        <height>61</height>
       </rect>
@@ -298,7 +298,7 @@ background-color: rgb(255, 0, 0);</string>
        <string>Validation Akurasi</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="ediTrainingAkurasi">
+     <widget class="QLineEdit" name="editTrainingAkurasi">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -346,10 +346,10 @@ background-color: rgb(255, 0, 0);</string>
      <widget class="QLabel" name="label_10">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>132</y>
-        <width>47</width>
-        <height>13</height>
+        <x>30</x>
+        <y>130</y>
+        <width>81</width>
+        <height>16</height>
        </rect>
       </property>
       <property name="text">
@@ -441,7 +441,7 @@ background-color: rgb(255, 0, 0);</string>
        <x>160</x>
        <y>300</y>
        <width>451</width>
-       <height>131</height>
+       <height>151</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -460,7 +460,7 @@ background-color: rgb(255, 0, 0);</string>
        <x>160</x>
        <y>450</y>
        <width>451</width>
-       <height>131</height>
+       <height>151</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -468,6 +468,112 @@ background-color: rgb(255, 0, 0);</string>
      </property>
      <property name="text">
       <string>Grafik </string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnHasil">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>400</y>
+       <width>111</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(255, 0, 0);</string>
+     </property>
+     <property name="text">
+      <string>Hasil</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>40</y>
+      <width>571</width>
+      <height>611</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Pengujian Manual</string>
+    </property>
+    <widget class="QGroupBox" name="groupBox_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>551</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <widget class="QPushButton" name="btnOpenFile">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>9</y>
+        <width>531</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(0, 0, 255);
+color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Open File</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>551</width>
+       <height>321</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblprediksi">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>410</y>
+       <width>551</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>24</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>Prediksi</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
