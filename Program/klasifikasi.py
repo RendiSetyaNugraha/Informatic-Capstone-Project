@@ -20,7 +20,7 @@ from tensorflow.keras.utils import load_img, img_to_array
 from sklearn.model_selection import train_test_split
 
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QMessageBox, QTableWidgetItem
-from PyQt5.QtWidgets import QDialog, QFileDialog
+from PyQt5.QtWidgets import QDialog, QFileDialog, QSplashScreen, QProgressBar, QPushButton, QFrame, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIcon, QPixmap, QImage
 from PyQt5.uic import loadUi
 from tkinter import messagebox
@@ -29,10 +29,25 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 # from ImageProcessing import *
 from Preprocessing import *
 # from cnn import *
+
+class progresbar(QSplashScreen):
+    def __init__(self):
+        super(QSplashScreen, self).__init__()
+        loadUi("splash.ui", self)
+        self.setWindowFlag(Qt.FramelessWindowHint)
+        pixmap = QPixmap("bg1.jpg")
+        self.setPixmap(pixmap)
+
+    def progress(self):
+        for i in range(100):
+            time.sleep(0.1)
+            self.progressBar.setValue(i)
 
 class klasifikasi(QMainWindow):
     ip=Preprocessing()
@@ -49,6 +64,55 @@ class klasifikasi(QMainWindow):
         self.btnProcessing.clicked.connect(self.cropping)
         self.btnfolderkos.clicked.connect(self.folderkos)
         self.btnProsesPelatihan.clicked.connect(self.create_model)
+        self.btnHasil.clicked.connect(self.hasil)
+        self.btnOpenFile.clicked.connect(self.pengujianManual)
+
+
+        self.button = self.findChild(QPushButton, "btnOpenFile")
+        self.label = self.findChild(QLabel, "label_3")
+        
+        
+
+        self.show()
+
+
+
+    def folderkos(self):
+        # Menghapus seluruh isi folder apel bagus
+        folder_path = 'kosong/Apel bagus'
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print('Error saat menghapus %s: %s' % (file_path, e))
+
+        # Menghapus seluruh isi folder apel busuk
+        folder_path = 'kosong/Apel busuk'
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print('Error saat menghapus %s: %s' % (file_path, e))
+
+        # Menghapus seluruh isi folder percobaan_tkinter
+        folder_path = 'Percobaan_tkinter'
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print('Error saat menghapus %s: %s' % (file_path, e))
 
     #fungsi untuk membaca data citra latih
     def BacaCitraLatih(self):
@@ -82,6 +146,7 @@ class klasifikasi(QMainWindow):
                 self.tblDataLatih.setItem((n_trainingdata+i),2,QTableWidgetItem(quality))
                 self.tblDataLatih.setItem((n_trainingdata+i),3,QTableWidgetItem(quality_code))
 
+                #Cropping citra
                 resizeimg = cv.imread(imagesdata[i], cv.IMREAD_COLOR)
                 scale_percent = 10
                 baris = int(resizeimg.shape[0] * scale_percent / 100)
@@ -114,8 +179,6 @@ class klasifikasi(QMainWindow):
                 Bawah = ybar + 210
                 Roi = resize[Atas:Bawah, Kiri:Kanan]
                 
-                # Roi = cv.cvtColor(Roi, cv.COLOR_BGR2RGB)
-                
                 if quality == 'Apel bagus':
                     # Mengganti path tujuan folder kosong dengan direktori yang diinginkan
                     dest_folder = 'kosong/Apel bagus' 
@@ -129,9 +192,11 @@ class klasifikasi(QMainWindow):
                     dest_file = os.path.join(dest_folder, imagesname[i])
                     cv2.imwrite(dest_file, Roi)
                     # shutil.copy(imagesdata[i], dest_file) # atau shutil.move(imagesdata[i], dest_file) jika ingin memindahkan
+
             plt.show()
         except:
             print('Terjadi error', sys.exc_info()[0])
+
 
     def cropping(self):
         fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(10, 5), sharex=True, sharey=True)
@@ -148,33 +213,12 @@ class klasifikasi(QMainWindow):
 
         plt.tight_layout()
         plt.show()
-
-    def folderkos(self):
-        # Menghapus seluruh isi folder apel bagus
-        folder_path = 'kosong/Apel bagus'
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print('Error saat menghapus %s: %s' % (file_path, e))
-
-        # Menghapus seluruh isi folder apel busuk
-        folder_path = 'kosong/Apel busuk'
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print('Error saat menghapus %s: %s' % (file_path, e))
             
     def create_model(self):
+
+        global train_images
+        global test_images
+        global history
 
         image_dir = Path('kosong')
         filepaths = list(image_dir.glob(r'**/*.jpg'))
@@ -210,7 +254,7 @@ class klasifikasi(QMainWindow):
             x_col = 'Filepath',
             y_col = 'Label',
             target_size = (200, 200),
-            batch_size = 2,
+            batch_size = 10,
             color_mode = "rgb",
             class_mode = "binary",
             shuffle = True,
@@ -222,7 +266,7 @@ class klasifikasi(QMainWindow):
             x_col = 'Filepath',
             y_col = 'Label',
             target_size = (200, 200),
-            batch_size = 2,
+            batch_size = 10,
             color_mode = "rgb",
             class_mode = "binary",
             shuffle = False,
@@ -248,8 +292,8 @@ class klasifikasi(QMainWindow):
 
         model.summary()
 
-        model_save_callback = callbacks.ModelCheckpoint('Percobaan_tkinter/model_{val_accuracy:.3f}_{accuracy:.3f}.h5', 
-                                                            save_best_only=False, save_weights_only=False, monitor='val_accuracy')
+        model_save_callback = callbacks.ModelCheckpoint('Percobaan_tkinter/model.h5', 
+                                                            save_best_only=True, save_weights_only=False, monitor='val_accuracy')
 
         lrate = 0.0001
         adam = Adam(learning_rate=lrate)
@@ -258,19 +302,159 @@ class klasifikasi(QMainWindow):
                     loss='binary_crossentropy',
                     metrics=['accuracy'])
 
-        model.fit(train_images,
+        history = model.fit(train_images,
                     validation_data=test_images,
-                    epochs=50,
+                    epochs=10,
                     callbacks=[model_save_callback]
                     )
-                    
+    
+    def hasil(self):
 
-        return model
+        loaded_model = models.load_model('Percobaan_tkinter/model.h5')
+        #train
+        score_CNN = loaded_model.evaluate(train_images, verbose=0)
+        self.editTrainingLoss.setText('{:.5f}'.format(score_CNN[0]))
+        self.editTrainingAkurasi.setText('{:.2f}%'.format(score_CNN[1]*100))
+        print('Train Loss: {:.5f}'.format(score_CNN[0]))
+        print('Train Accuracy: {:.2f}%'.format(score_CNN[1]*100))
+
+        #test
+        score_CNN = loaded_model.evaluate(test_images, verbose=0)
+        self.editValidationLoss.setText('{:.5f}'.format(score_CNN[0]))
+        self.editValidationAkurasi.setText('{:.2f}%'.format(score_CNN[1]*100))
+        print('Test Loss: {:.5f}'.format(score_CNN[0]))
+        print('Test Accuracy: {:.2f}%'.format(score_CNN[1]*100))
+
+        # #menampilkan grafik
+        # acc = history.history['accuracy']
+        # val_acc = history.history['val_accuracy']
+        # loss = history.history['loss']
+        # val_loss = history.history['val_loss']
+
+        # epochs = range(len(acc))
+
+        # plt.plot(epochs, acc, 'r', label = 'Training Accuracy')
+        # plt.plot(epochs, val_acc, 'b', label = 'Validation Accuracy')
+        # plt.title('Training & Validation Accuracy')
+        # plt.legend()
+        # plt.figure()
+
+        # plt.plot(epochs, loss, 'r', label = 'Training Loss')
+        # plt.plot(epochs, val_loss, 'b', label = 'Validation Loss')
+        # plt.title('Training & Validation Accuracy Loss')
+        # plt.legend()
+        # plt.show()
+
+    def pengujianManual(self):
+        
+        fname = QFileDialog.getOpenFileName(self, "Open File", "D:\ICP_rendi", "All Files (*);;PNG Files (*.png);;Jpg Files (*.jpg)")
+        
+        #open the image
+        self.pixmap = QPixmap(fname[0])
+        self.label.setPixmap(self.pixmap)
+
+        loaded_model = models.load_model('Percobaan_tkinter/model.h5')
+
+        img_path = fname[0]
+
+        img = load_img(img_path, target_size=(200, 200))
+
+        do = cv.imread(img_path, cv.IMREAD_UNCHANGED)
+
+        Open = np.ones((5,5))
+        Close = np.ones((20))
+
+        hsv = cv.cvtColor(do, cv.COLOR_BGR2HSV)
+        lower_red = np.array([0, 50, 50])
+        upper_red = np.array([10, 255, 255])
+
+        redmask1 = cv.inRange(hsv, lower_red, upper_red)
+
+        lower_red = np.array([170, 50, 50])
+        upper_red = np.array([180, 255, 255])
+
+        redmask2 = cv.inRange(hsv, lower_red, upper_red)
+
+        redmask = redmask1+redmask2
+        maskOpen = cv.morphologyEx(redmask, cv.MORPH_OPEN, Open)
+        maskClose = cv.morphologyEx(maskOpen, cv.MORPH_CLOSE, Close)
+
+        maskFinal = maskClose
+
+        cnt_r = 0
+        for r in redmask:
+            cnt_r = cnt_r+list(r).count(255)
+        # print("merah", cnt_r)
+        # cv.imshow('Red_Mask:', redmask)
+
+        lower_green = np.array([50, 50, 50])
+        upper_green = np.array([70, 255, 255])
+        greenmask = cv.inRange(hsv, lower_green, upper_green)
+        # cv.imshow('Green_mask:', greenmask)
+        cnt_g = 0
+        for g in greenmask:
+            cnt_g = cnt_g+list(g).count(255)
+        # print("Hijau ", cnt_g)
+
+        lower_yellow = np.array([20, 50, 50])
+        upper_yellow = np.array([30, 255, 255])
+        yellowmask = cv.inRange(hsv, lower_yellow, upper_yellow)
+        # cv.imshow('Yellow Mask:', yellowmask)
+        cnt_y = 0
+        for y in yellowmask:
+            cnt_y = cnt_y+list(y).count(255)
+        # print("Kuning ", cnt_y)
+
+        tot_area = cnt_r+cnt_y+cnt_g
+        rperc = cnt_r/tot_area
+        yperc = cnt_y/tot_area
+        gperc = cnt_g/tot_area
+
+        glimit = 0.5
+        ylimit = 0.8
+
+        if gperc>glimit: #segar
+            #prediksi
+            imgplot = plt.imshow(img)
+            x = image.img_to_array(img)
+            x = np.expand_dims(x, axis = 0)
+
+            images = np.vstack([x])
+            prediction = loaded_model.predict(images)
+            print(prediction[0])
+            if prediction[0] < 0.5:
+                self.lblprediksi.setText("Apel Bagus")
+            else:
+                self.lblprediksi.setText("Apel Busuk")
+
+        elif yperc>glimit: #busuk
+            imgplot = plt.imshow(img)
+            x = image.img_to_array(img)
+            x = np.expand_dims(x, axis = 0)
+
+            images = np.vstack([x])
+            prediction = loaded_model.predict(images)
+            print(prediction[0])
+            if prediction[0] < 0.5:
+                self.lblprediksi.setText("Apel Bagus")
+            else:
+                self.lblprediksi.setText("Apel Busuk")
+
+        else: #bukan buah apel
+            self.lblprediksi.setText("Ini bukan buah apel hijau")
+        
                         
 if __name__=="__main__":
     app = QApplication(sys.argv)
+
+    splash = progresbar()
+    splash.show()
+    splash.progress()
+
     form= klasifikasi()
     form.show()
+
+    splash.finish(form)
     sys.exit(app.exec_())
 
 
