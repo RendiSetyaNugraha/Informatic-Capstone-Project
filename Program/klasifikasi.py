@@ -7,6 +7,7 @@ import os, re, glob
 import seaborn as sns
 import pandas as pd
 import shutil
+import random
 import os
 
 import tensorflow as tf
@@ -30,7 +31,7 @@ from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as Navigati
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QMovie
 from PyQt5.QtWidgets import *
 # from ImageProcessing import *
 from Preprocessing import *
@@ -64,55 +65,15 @@ class klasifikasi(QMainWindow):
         self.btnProcessing.clicked.connect(self.cropping)
         self.btnfolderkos.clicked.connect(self.folderkos)
         self.btnProsesPelatihan.clicked.connect(self.create_model)
-        self.btnHasil.clicked.connect(self.hasil)
+        # self.btnHasil.clicked.connect(self.hasil)
         self.btnOpenFile.clicked.connect(self.pengujianManual)
 
 
         self.button = self.findChild(QPushButton, "btnOpenFile")
         self.label = self.findChild(QLabel, "label_3")
-        
-        
 
         self.show()
 
-
-
-    def folderkos(self):
-        # Menghapus seluruh isi folder apel bagus
-        folder_path = 'kosong/Apel bagus'
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print('Error saat menghapus %s: %s' % (file_path, e))
-
-        # Menghapus seluruh isi folder apel busuk
-        folder_path = 'kosong/Apel busuk'
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print('Error saat menghapus %s: %s' % (file_path, e))
-
-        # Menghapus seluruh isi folder percobaan_tkinter
-        folder_path = 'Percobaan_tkinter'
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print('Error saat menghapus %s: %s' % (file_path, e))
 
     #fungsi untuk membaca data citra latih
     def BacaCitraLatih(self):
@@ -137,8 +98,8 @@ class klasifikasi(QMainWindow):
             n=len(imagesdata)
             self.editTotalDataLatih.setText(str(n_trainingdata+n))
             self.tblDataLatih.setRowCount(n_trainingdata+n)
-    
 
+            
             for i in range(n) :
                 #menampilkan data citra pada tabel data latih
                 self.tblDataLatih.setItem((n_trainingdata+i),0,QTableWidgetItem(imagesname[i]))
@@ -146,7 +107,7 @@ class klasifikasi(QMainWindow):
                 self.tblDataLatih.setItem((n_trainingdata+i),2,QTableWidgetItem(quality))
                 self.tblDataLatih.setItem((n_trainingdata+i),3,QTableWidgetItem(quality_code))
 
-                #Cropping citra
+                #---------------- Cropping citra From Scratch ----------------#
                 resizeimg = cv.imread(imagesdata[i], cv.IMREAD_COLOR)
                 scale_percent = 10
                 baris = int(resizeimg.shape[0] * scale_percent / 100)
@@ -192,36 +153,51 @@ class klasifikasi(QMainWindow):
                     dest_file = os.path.join(dest_folder, imagesname[i])
                     cv2.imwrite(dest_file, Roi)
                     # shutil.copy(imagesdata[i], dest_file) # atau shutil.move(imagesdata[i], dest_file) jika ingin memindahkan
-
             plt.show()
+       
         except:
             print('Terjadi error', sys.exc_info()[0])
 
+    
 
     def cropping(self):
         fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(10, 5), sharex=True, sharey=True)
         path_bagus = 'kosong/Apel bagus'
         path_busuk = 'kosong/Apel busuk'
 
-        for i, path in enumerate([path_bagus, path_busuk]):
-            for j, img_name in enumerate(os.listdir(path)[:5]): # Mengambil 5 gambar pertama dari setiap folder
-                img_path = os.path.join(path, img_name)
-                img = plt.imread(img_path)
-                axes[i,j].imshow(img)
-                axes[i,j].set_title(f'{path.split()[-1]}_{j+1}')
-                axes[i,j].axis('off')
+        images_bagus = os.listdir(path_bagus)
+        images_busuk = os.listdir(path_busuk)
+
+        random.shuffle(images_bagus)
+        random.shuffle(images_busuk)
+
+        for i, img_name in enumerate(images_bagus[:5]):
+            img_path = os.path.join(path_bagus, img_name)
+            img = plt.imread(img_path)
+            axes[0, i].imshow(img)
+            axes[0, i].set_title(f'Apel bagus {i+1}')
+            axes[0, i].axis('off')
+
+        for i, img_name in enumerate(images_busuk[:5]):
+            img_path = os.path.join(path_busuk, img_name)
+            img = plt.imread(img_path)
+            axes[1, i].imshow(img)
+            axes[1, i].set_title(f'Apel busuk {i+1}')
+            axes[1, i].axis('off')
 
         plt.tight_layout()
         plt.show()
+
             
     def create_model(self):
+
 
         global train_images
         global test_images
         global history
 
         image_dir = Path('kosong')
-        filepaths = list(image_dir.glob(r'**/*.jpg'))
+        filepaths = list(image_dir.glob(r'**/*.png'))
         labels = list(map(lambda x: os.path.split(os.path.split(x)[0])[1], filepaths))
 
         filepaths = pd.Series(filepaths, name='Filepath').astype(str)
@@ -230,7 +206,7 @@ class klasifikasi(QMainWindow):
         image_df = pd.concat([filepaths, labels], axis=1)
         # image_df
 
-        train_df, test_df = train_test_split(image_df, train_size=0.7, shuffle=True, random_state=1)
+        train_df, test_df = train_test_split(image_df, train_size=0.8, shuffle=True, random_state=1)
         print(len(train_df))
         print(len(test_df))
         
@@ -254,7 +230,7 @@ class klasifikasi(QMainWindow):
             x_col = 'Filepath',
             y_col = 'Label',
             target_size = (200, 200),
-            batch_size = 10,
+            # batch_size = 3,
             color_mode = "rgb",
             class_mode = "binary",
             shuffle = True,
@@ -266,7 +242,7 @@ class klasifikasi(QMainWindow):
             x_col = 'Filepath',
             y_col = 'Label',
             target_size = (200, 200),
-            batch_size = 10,
+            # batch_size = 3,
             color_mode = "rgb",
             class_mode = "binary",
             shuffle = False,
@@ -301,49 +277,126 @@ class klasifikasi(QMainWindow):
         model.compile(optimizer='adam',
                     loss='binary_crossentropy',
                     metrics=['accuracy'])
-
+        
+        epoch = 10
         history = model.fit(train_images,
                     validation_data=test_images,
-                    epochs=10,
+                    epochs=epoch,
+                    batch_size = 10,
                     callbacks=[model_save_callback]
                     )
-    
-    def hasil(self):
+        
+        # for i in range(epoch):
+        #     time.sleep(0.1)
+        #     progress = (i+1)*100/epoch
+        #     self.barprogress_train.setValue(progress)
 
-        loaded_model = models.load_model('Percobaan_tkinter/model.h5')
+        #---------------- Hasil Proses Pelatihan ------------------#
+
+        models.load_model('Percobaan_tkinter/model.h5')
         #train
-        score_CNN = loaded_model.evaluate(train_images, verbose=0)
-        self.editTrainingLoss.setText('{:.5f}'.format(score_CNN[0]))
-        self.editTrainingAkurasi.setText('{:.2f}%'.format(score_CNN[1]*100))
-        print('Train Loss: {:.5f}'.format(score_CNN[0]))
-        print('Train Accuracy: {:.2f}%'.format(score_CNN[1]*100))
+        # score_CNN = loaded_model.evaluate(train_images, verbose=0)
+        # self.editTrainingLoss.setText('{:.5f}'.format(score_CNN[0]))
+        # self.editTrainingAkurasi.setText('{:.2f}%'.format(score_CNN[1]*100))
+        # print('Train Loss: {:.5f}'.format(score_CNN[0]))
+        # print('Train Accuracy: {:.2f}%'.format(score_CNN[1]*100))
 
-        #test
-        score_CNN = loaded_model.evaluate(test_images, verbose=0)
-        self.editValidationLoss.setText('{:.5f}'.format(score_CNN[0]))
-        self.editValidationAkurasi.setText('{:.2f}%'.format(score_CNN[1]*100))
-        print('Test Loss: {:.5f}'.format(score_CNN[0]))
-        print('Test Accuracy: {:.2f}%'.format(score_CNN[1]*100))
+        # #test
+        # score_CNN = loaded_model.evaluate(test_images, verbose=0)
+        # self.editValidationLoss.setText('{:.5f}'.format(score_CNN[0]))
+        # self.editValidationAkurasi.setText('{:.2f}%'.format(score_CNN[1]*100))
+        # print('Test Loss: {:.5f}'.format(score_CNN[0]))
+        # print('Test Accuracy: {:.2f}%'.format(score_CNN[1]*100))
 
-        # #menampilkan grafik
-        # acc = history.history['accuracy']
-        # val_acc = history.history['val_accuracy']
-        # loss = history.history['loss']
-        # val_loss = history.history['val_loss']
+          
+        acc = history.history['accuracy']
+        val_acc = history.history['val_accuracy']
+        loss = history.history['loss']
+        val_loss = history.history['val_loss']
 
-        # epochs = range(len(acc))
+        epochs = range(len(acc))
 
-        # plt.plot(epochs, acc, 'r', label = 'Training Accuracy')
-        # plt.plot(epochs, val_acc, 'b', label = 'Validation Accuracy')
-        # plt.title('Training & Validation Accuracy')
-        # plt.legend()
-        # plt.figure()
+        plt.figure(figsize=(2.28, 2.25))
+        plt.plot(epochs, acc, 'r', label = 'Training Accuracy')
+        plt.plot(epochs, val_acc, 'b', label = 'Validation Accuracy')
+        plt.title('Accuracy')
+        plt.legend()
+        plt.savefig('Percobaan_tkinter/accuracy_graph.png', dpi = 100)
+        plt.figure()
 
-        # plt.plot(epochs, loss, 'r', label = 'Training Loss')
-        # plt.plot(epochs, val_loss, 'b', label = 'Validation Loss')
-        # plt.title('Training & Validation Accuracy Loss')
-        # plt.legend()
+        plt.figure(figsize=(2.28, 2.25))
+        plt.plot(epochs, loss, 'r', label = 'Training Loss')
+        plt.plot(epochs, val_loss, 'b', label = 'Validation Loss')
+        plt.title('Loss')
+        plt.legend()
+        plt.savefig('Percobaan_tkinter/loss.png', dpi = 100)
         # plt.show()
+
+        pixmap = QPixmap('Percobaan_tkinter/accuracy_graph.png')
+        self.lblGrafikKonversi.setPixmap(pixmap)
+
+        pixmap2 = QPixmap('Percobaan_tkinter/loss.png')
+        self.lblGrafikKonversi_2.setPixmap(pixmap2)
+
+        self.editTrainingLoss.setText('{:.5f}'.format(loss[-1]))
+        self.editTrainingAkurasi.setText('{:.2f}%'.format(acc[-1] * 100))
+
+        self.editValidationLoss.setText('{:.5f}'.format(val_loss[-1]))
+        self.editValidationAkurasi.setText('{:.2f}%'.format(val_acc[-1]*100))
+
+    def folderkos(self):
+        # menghapus tabel
+        self.tblDataLatih.setRowCount(0)  # Mengatur jumlah baris tabel menjadi 0
+        model = self.tblDataLatih.model()
+        model.removeRows(0, model.rowCount())
+
+        #menghapus total line edit
+        self.editTotalDataLatih.clear()
+        self.editTrainingLoss.clear()
+        self.editTrainingAkurasi.clear()
+
+        self.editValidationLoss.clear()
+        self.editValidationAkurasi.clear()
+
+        #menghapus grafik
+        self.lblGrafikKonversi.clear()
+        self.lblGrafikKonversi_2.clear()
+
+        # Menghapus seluruh isi folder apel bagus
+        folder_path = 'kosong/Apel bagus'
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print('Error saat menghapus %s: %s' % (file_path, e))
+
+        # Menghapus seluruh isi folder apel busuk
+        folder_path = 'kosong/Apel busuk'
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print('Error saat menghapus %s: %s' % (file_path, e))
+
+        # Menghapus seluruh isi folder percobaan_tkinter
+        folder_path = 'Percobaan_tkinter'
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print('Error saat menghapus %s: %s' % (file_path, e))
 
     def pengujianManual(self):
         
